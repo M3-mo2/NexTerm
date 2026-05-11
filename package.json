@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "node scripts/generate-icons.mjs && tsc && vite build",
+    "generate-icons": "node scripts/generate-icons.mjs",
     "preview": "vite preview",
     "tauri": "tauri",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
