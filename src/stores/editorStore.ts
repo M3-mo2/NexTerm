@@ -74,7 +74,7 @@ const getLanguageFromExtension = (ext: string | null): string => {
 
 // ─── Store ───────────────────────────────────────────────────────────────────
 
-export const useEditorStore = create<EditorState>((set, get) => ({
+export const useEditorStore = create<EditorState>((set) => ({
   openFiles: [],
   activeFilePath: null,
   fontSize: 14,

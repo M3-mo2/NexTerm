@@ -51,7 +51,7 @@ export const useTerminalStore = create<TerminalState>((set) => ({
           : state.activeTerminalId;
 
       return {
-        terminals: filtered.map((t, i) => ({
+        terminals: filtered.map((t) => ({
           ...t,
           isActive: t.id === newActiveId,
         })),

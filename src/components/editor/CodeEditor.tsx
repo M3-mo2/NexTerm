@@ -10,7 +10,7 @@ import {
 import './CodeEditor.css';
 
 function EditorTabs() {
-  const { openFiles, activeFilePath, setActiveFile, closeFile, updateFileContent, saveFile } =
+  const { openFiles, activeFilePath, setActiveFile, closeFile, saveFile } =
     useEditorStore();
 
   const handleTabClose = useCallback(
