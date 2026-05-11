@@ -44,32 +44,48 @@ function generatePNG(size) {
 }
 
 function generateICO(size) {
+  // ICO pixel data must be bottom-up BGRA
   const pixels = Buffer.alloc(size*size*4);
   for (let y=0; y<size; y++) for (let x=0; x<size; x++) {
+    const srcY = size - 1 - y; // flip vertically
     const i=(y*size+x)*4;
-    pixels[i]=212; pixels[i+1]=120; pixels[i+2]=0; pixels[i+3]=255; // BGRA
+    pixels[i]=212; pixels[i+1]=120; pixels[i+2]=0; pixels[i+3]=255; // BGRA blue
   }
-  const andMask = Buffer.alloc(Math.ceil(size/8)*size, 0);
+  // AND mask rows must be 4-byte aligned
+  const maskRowBytes = Math.ceil(size / 8);
+  const maskRowPadded = Math.ceil(maskRowBytes / 4) * 4;
+  const andMask = Buffer.alloc(maskRowPadded * size, 0);
   const imgDataSize = 40 + pixels.length + andMask.length;
 
   const bmpHdr = Buffer.alloc(40);
-  bmpHdr.writeUInt32LE(40,0); bmpHdr.writeInt32LE(size,4); bmpHdr.writeInt32LE(size*2,8);
-  bmpHdr.writeUInt16LE(1,12); bmpHdr.writeUInt16LE(32,14);
-  bmpHdr.writeUInt32LE(size*size*4,20);
+  bmpHdr.writeUInt32LE(40,0);
+  bmpHdr.writeInt32LE(size,4);
+  bmpHdr.writeInt32LE(size*2,8); // doubled height for ICO
+  bmpHdr.writeUInt16LE(1,12); // planes
+  bmpHdr.writeUInt16LE(32,14); // bpp
+  bmpHdr.writeUInt32LE(pixels.length + andMask.length,20); // image data size
 
   const hdr = Buffer.alloc(6);
-  hdr.writeUInt16LE(0,0); hdr.writeUInt16LE(1,2); hdr.writeUInt16LE(1,4);
+  hdr.writeUInt16LE(0,0); // reserved
+  hdr.writeUInt16LE(1,2); // type = ICO
+  hdr.writeUInt16LE(1,4); // count = 1
 
   const entry = Buffer.alloc(16);
-  entry[0]=size>=256?0:size; entry[1]=size>=256?0:size;
-  entry.writeUInt32LE(imgDataSize,8); entry.writeUInt32LE(22,12);
+  entry[0]=size>=256?0:size; // width
+  entry[1]=size>=256?0:size; // height
+  entry[2]=0; // color count
+  entry[3]=0; // reserved
+  entry.writeUInt16LE(1,4); // planes
+  entry.writeUInt16LE(32,6); // bpp
+  entry.writeUInt32LE(imgDataSize,8);
+  entry.writeUInt32LE(22,12); // offset = 6 + 16 = 22
 
   return Buffer.concat([hdr, entry, bmpHdr, pixels, andMask]);
 }
 
 // Generate all required sizes
-writeFileSync(join(ICONS_DIR, 'icon.ico'), generateICO(32));
-writeFileSync(join(ICONS_DIR, 'icon.png'), generatePNG(32));
+writeFileSync(join(ICONS_DIR, 'icon.ico'), generateICO(256));
+writeFileSync(join(ICONS_DIR, 'icon.png'), generatePNG(256));
 writeFileSync(join(ICONS_DIR, '32x32.png'), generatePNG(32));
 writeFileSync(join(ICONS_DIR, '128x128.png'), generatePNG(128));
 writeFileSync(join(ICONS_DIR, '128x128@2x.png'), generatePNG(256));
