@@ -37,50 +37,39 @@ jobs:
         run: npm install
 
       - name: Build Tauri app
-        run: npm run tauri build
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Verify build output
-        shell: pwsh
-        run: |
-          Write-Host "=== NSIS ==="
-          Get-ChildItem -Path "src-tauri\target\release\bundle\nsis" -Recurse -File
-          Write-Host "=== MSI ==="
-          Get-ChildItem -Path "src-tauri\target\release\bundle\msi" -Recurse -File
-
-      - name: Create nightly release
-        if: "!startsWith(github.ref, 'refs/tags/')"
+      - name: Verify and release
         shell: pwsh
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          $nsis = Get-ChildItem -Path "src-tauri\target\release\bundle\nsis" -Filter "*.exe" -Recurse | Select-Object -First 1
-          $msi = Get-ChildItem -Path "src-tauri\target\release\bundle\msi" -Filter "*.msi" -Recurse | Select-Object -First 1
+          Write-Host "=== Searching for installers ==="
+          $exeFiles = Get-ChildItem -Path "src-tauri\target\release\bundle" -Filter "*.exe" -Recurse -ErrorAction SilentlyContinue
+          $msiFiles = Get-ChildItem -Path "src-tauri\target\release\bundle" -Filter "*.msi" -Recurse -ErrorAction SilentlyContinue
 
-          if (-not $nsis -and -not $msi) {
-            Write-Error "No installers found!"
+          if ($exeFiles) { Write-Host "Found EXE:"; $exeFiles | ForEach-Object { Write-Host $_.FullName } }
+          else { Write-Host "WARNING: No EXE installer found" }
+          if ($msiFiles) { Write-Host "Found MSI:"; $msiFiles | ForEach-Object { Write-Host $_.FullName } }
+          else { Write-Host "WARNING: No MSI installer found" }
+
+          if (-not $exeFiles -and -not $msiFiles) {
+            Write-Error "FATAL: No installers found! Build may have failed."
             exit 1
           }
 
-          # Create or update nightly tag
-          gh release delete nightly --yes 2>$null; gh release create nightly --title "NexTerm Nightly" --notes "Latest build from main branch. Download the installer below." --prerelease
-          if ($nsis) { gh release upload nightly $nsis.FullName --clobber }
-          if ($msi) { gh release upload nightly $msi.FullName --clobber }
-
-      - name: Create version release
-        if: startsWith(github.ref, 'refs/tags/')
-        shell: pwsh
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          $nsis = Get-ChildItem -Path "src-tauri\target\release\bundle\nsis" -Filter "*.exe" -Recurse | Select-Object -First 1
-          $msi = Get-ChildItem -Path "src-tauri\target\release\bundle\msi" -Filter "*.msi" -Recurse | Select-Object -First 1
-
-          if (-not $nsis -and -not $msi) {
-            Write-Error "No installers found!"
-            exit 1
+          if ("$env:GITHUB_REF" -like "refs/tags/v*") {
+            $tag = $env:GITHUB_REF -replace "refs/tags/", ""
+            Write-Host "Creating version release: $tag"
+            gh release create $tag --title "NexTerm $tag" --notes "See the assets to download and install NexTerm."
+            if ($exeFiles) { gh release upload $tag $exeFiles[0].FullName }
+            if ($msiFiles) { gh release upload $tag $msiFiles[0].FullName }
+          } else {
+            Write-Host "Creating/updating nightly release"
+            gh release delete nightly --yes 2>$null
+            gh release create nightly --title "NexTerm Nightly" --notes "Latest build from main branch. Download the installer below." --prerelease
+            if ($exeFiles) { gh release upload nightly $exeFiles[0].FullName }
+            if ($msiFiles) { gh release upload nightly $msiFiles[0].FullName }
           }
-
-          $tag = $env:GITHUB_REF -replace "refs/tags/", ""
-          gh release create $tag --title "NexTerm $tag" --notes "See the assets to download and install NexTerm."
-          if ($nsis) { gh release upload $tag $nsis.FullName }
-          if ($msi) { gh release upload $tag $msi.FullName }
