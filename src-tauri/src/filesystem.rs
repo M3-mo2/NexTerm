@@ -1,7 +1,6 @@
-use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::fs;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 /// Represents a file or directory entry
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -19,18 +18,19 @@ pub struct FileEntry {
 
 /// Read directory contents and return entries
 #[tauri::command]
-pub fn read_directory(path: String) -> Result<Vec<FileEntry>> {
+pub fn read_directory(path: String) -> Result<Vec<FileEntry>, String> {
     let dir_path = Path::new(&path);
 
     if !dir_path.exists() || !dir_path.is_dir() {
-        anyhow::bail!("Directory does not exist or is not a directory: {}", path);
+        return Err(format!("Directory does not exist or is not a directory: {}", path));
     }
 
     let mut entries = Vec::new();
 
-    for entry in fs::read_dir(dir_path)? {
-        let entry = entry?;
-        let metadata = entry.metadata()?;
+    let dir_entries = fs::read_dir(dir_path).map_err(|e| format!("Failed to read directory: {}", e))?;
+    for entry in dir_entries {
+        let entry = entry.map_err(|e| format!("Failed to read entry: {}", e))?;
+        let metadata = entry.metadata().map_err(|e| format!("Failed to read metadata: {}", e))?;
         let name = entry
             .file_name()
             .to_string_lossy()
@@ -85,83 +85,82 @@ pub fn read_directory(path: String) -> Result<Vec<FileEntry>> {
 
 /// Read file content as text
 #[tauri::command]
-pub fn read_file_content(path: String) -> Result<String> {
+pub fn read_file_content(path: String) -> Result<String, String> {
     let file_path = Path::new(&path);
     if !file_path.exists() || !file_path.is_file() {
-        anyhow::bail!("File does not exist: {}", path);
+        return Err(format!("File does not exist: {}", path));
     }
-    let content = fs::read_to_string(file_path)?;
+    let content = fs::read_to_string(file_path).map_err(|e| format!("Failed to read file: {}", e))?;
     Ok(content)
 }
 
 /// Write content to a file
 #[tauri::command]
-pub fn write_file_content(path: String, content: String) -> Result<()> {
+pub fn write_file_content(path: String, content: String) -> Result<(), String> {
     let file_path = Path::new(&path);
-    // Create parent directories if they don't exist
     if let Some(parent) = file_path.parent() {
-        fs::create_dir_all(parent)?;
+        fs::create_dir_all(parent).map_err(|e| format!("Failed to create directories: {}", e))?;
     }
-    fs::write(file_path, content)?;
+    fs::write(file_path, content).map_err(|e| format!("Failed to write file: {}", e))?;
     Ok(())
 }
 
 /// Create a new file
 #[tauri::command]
-pub fn create_file(path: String) -> Result<()> {
+pub fn create_file(path: String) -> Result<(), String> {
     let file_path = Path::new(&path);
     if file_path.exists() {
-        anyhow::bail!("File already exists: {}", path);
+        return Err(format!("File already exists: {}", path));
     }
     if let Some(parent) = file_path.parent() {
-        fs::create_dir_all(parent)?;
+        fs::create_dir_all(parent).map_err(|e| format!("Failed to create directories: {}", e))?;
     }
-    fs::File::create(file_path)?;
+    fs::File::create(file_path).map_err(|e| format!("Failed to create file: {}", e))?;
     Ok(())
 }
 
 /// Create a new directory
 #[tauri::command]
-pub fn create_directory(path: String) -> Result<()> {
+pub fn create_directory(path: String) -> Result<(), String> {
     let dir_path = Path::new(&path);
     if dir_path.exists() {
-        anyhow::bail!("Directory already exists: {}", path);
+        return Err(format!("Directory already exists: {}", path));
     }
-    fs::create_dir_all(dir_path)?;
+    fs::create_dir_all(dir_path).map_err(|e| format!("Failed to create directory: {}", e))?;
     Ok(())
 }
 
 /// Delete a file or directory
 #[tauri::command]
-pub fn delete_entry(path: String) -> Result<()> {
+pub fn delete_entry(path: String) -> Result<(), String> {
     let entry_path = Path::new(&path);
     if !entry_path.exists() {
-        anyhow::bail!("Path does not exist: {}", path);
+        return Err(format!("Path does not exist: {}", path));
     }
     if entry_path.is_dir() {
-        fs::remove_dir_all(entry_path)?;
+        fs::remove_dir_all(entry_path).map_err(|e| format!("Failed to delete directory: {}", e))?;
     } else {
-        fs::remove_file(entry_path)?;
+        fs::remove_file(entry_path).map_err(|e| format!("Failed to delete file: {}", e))?;
     }
     Ok(())
 }
 
 /// Rename a file or directory
 #[tauri::command]
-pub fn rename_entry(old_path: String, new_path: String) -> Result<()> {
+pub fn rename_entry(old_path: String, new_path: String) -> Result<(), String> {
     let src = Path::new(&old_path);
     let dst = Path::new(&new_path);
     if !src.exists() {
-        anyhow::bail!("Source path does not exist: {}", old_path);
+        return Err(format!("Source path does not exist: {}", old_path));
     }
-    fs::rename(src, dst)?;
+    fs::rename(src, dst).map_err(|e| format!("Failed to rename: {}", e))?;
     Ok(())
 }
 
 /// Get the user's home directory
 #[tauri::command]
-pub fn get_home_dir() -> Result<String> {
+pub fn get_home_dir() -> Result<String, String> {
     let home = dirs::home_dir()
-        .ok_or_else(|| anyhow::anyhow!("Could not determine home directory"))?;
+        .ok_or_else(|| "Could not determine home directory".to_string())?;
     Ok(home.to_string_lossy().to_string())
 }

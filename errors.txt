@@ -1,0 +1,386 @@
+   Compiling filedescriptor v0.8.3
+   Compiling shared_child v1.1.1
+   Compiling open v5.3.4
+   Compiling nexterm v0.1.0 (D:\a\NexTerm\NexTerm\src-tauri)
+   Compiling os_pipe v1.2.3
+   Compiling encoding_rs v0.8.35
+   Compiling downcast-rs v1.2.1
+   Compiling shell-words v1.1.1
+   Compiling portable-pty v0.8.1
+   Compiling dirs v5.0.1
+warning: unused import: `BufRead`
+ --> src\terminal.rs:5:15
+  |
+5 | use std::io::{BufRead, BufReader, Write};
+  |               ^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+warning: unused import: `PathBuf`
+ --> src\filesystem.rs:4:23
+  |
+4 | use std::path::{Path, PathBuf};
+  |                       ^^^^^^^
+error[E0599]: no method named `try_reader` found for struct `Box<(dyn MasterPty + std::marker::Send + 'static)>` in the current scope
+  --> src\terminal.rs:98:34
+   |
+98 |     let reader = pty_pair.master.try_reader()?;
+   |                                  ^^^^^^^^^^
+   |
+help: there is a method `try_clone_reader` with a similar name
+   |
+98 |     let reader = pty_pair.master.try_clone_reader()?;
+   |                                      ++++++
+error[E0599]: the method `blocking_kind` exists for reference `&Result<std::string::String, anyhow::Error>`, but its trait bounds were not satisfied
+   --> src\terminal.rs:62:1
+    |
+ 62 |   #[tauri::command]
+    |   ^^^^^^^^^^^^^^^^^ method cannot be called on `&Result<std::string::String, anyhow::Error>` due to unsatisfied trait bounds
+    |
+   ::: C:\Users\runneradmin\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\anyhow-1.0.102\src\lib.rs:390:1
+    |
+390 |   pub struct Error {
+    |   ---------------- doesn't satisfy `anyhow::Error: Into<InvokeError>`
+    |
+   ::: src\lib.rs:18:25
+    |
+ 18 |           .invoke_handler(tauri::generate_handler![
+    |  _________________________-
+ 19 | |             terminal::create_terminal,
+ 20 | |             terminal::write_to_terminal,
+ 21 | |             terminal::resize_terminal,
+...   |
+ 30 | |             filesystem::get_home_dir,
+ 31 | |         ])
+    | |_________- in this macro invocation
+    |
+    = note: the following trait bounds were not satisfied:
+            `anyhow::Error: Into<InvokeError>`
+            which is required by `Result<std::string::String, anyhow::Error>: tauri::ipc::private::ResultKind`
+            `Result<std::string::String, anyhow::Error>: IpcResponse`
+            which is required by `&Result<std::string::String, anyhow::Error>: tauri::ipc::private::ResponseKind`
+    = note: this error originates in the macro `terminal::__cmd__create_terminal` which comes from the expansion of the macro `tauri::generate_handler` (in Nightly builds, run with -Z macro-backtrace for more info)
+error[E0599]: the method `blocking_kind` exists for reference `&Result<(), anyhow::Error>`, but its trait bounds were not satisfied
+   --> src\terminal.rs:160:1
+    |
+160 |   #[tauri::command]
+    |   ^^^^^^^^^^^^^^^^^ method cannot be called on `&Result<(), anyhow::Error>` due to unsatisfied trait bounds
+    |
+   ::: C:\Users\runneradmin\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\anyhow-1.0.102\src\lib.rs:390:1
+    |
+390 |   pub struct Error {
+    |   ---------------- doesn't satisfy `anyhow::Error: Into<InvokeError>`
+    |
+   ::: src\lib.rs:18:25
+    |
+ 18 |           .invoke_handler(tauri::generate_handler![
+    |  _________________________-
+ 19 | |             terminal::create_terminal,
+ 20 | |             terminal::write_to_terminal,
+ 21 | |             terminal::resize_terminal,
+...   |
+ 30 | |             filesystem::get_home_dir,
+ 31 | |         ])
+    | |_________- in this macro invocation
+    |
+    = note: the following trait bounds were not satisfied:
+            `anyhow::Error: Into<InvokeError>`
+            which is required by `Result<(), anyhow::Error>: tauri::ipc::private::ResultKind`
+            `Result<(), anyhow::Error>: IpcResponse`
+            which is required by `&Result<(), anyhow::Error>: tauri::ipc::private::ResponseKind`
+    = note: this error originates in the macro `terminal::__cmd__write_to_terminal` which comes from the expansion of the macro `tauri::generate_handler` (in Nightly builds, run with -Z macro-backtrace for more info)
+error[E0599]: the method `blocking_kind` exists for reference `&Result<(), anyhow::Error>`, but its trait bounds were not satisfied
+   --> src\terminal.rs:177:1
+    |
+177 |   #[tauri::command]
+    |   ^^^^^^^^^^^^^^^^^ method cannot be called on `&Result<(), anyhow::Error>` due to unsatisfied trait bounds
+    |
+   ::: C:\Users\runneradmin\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\anyhow-1.0.102\src\lib.rs:390:1
+    |
+390 |   pub struct Error {
+    |   ---------------- doesn't satisfy `anyhow::Error: Into<InvokeError>`
+    |
+   ::: src\lib.rs:18:25
+    |
+ 18 |           .invoke_handler(tauri::generate_handler![
+    |  _________________________-
+ 19 | |             terminal::create_terminal,
+ 20 | |             terminal::write_to_terminal,
+ 21 | |             terminal::resize_terminal,
+...   |
+ 30 | |             filesystem::get_home_dir,
+ 31 | |         ])
+    | |_________- in this macro invocation
+    |
+    = note: the following trait bounds were not satisfied:
+            `anyhow::Error: Into<InvokeError>`
+            which is required by `Result<(), anyhow::Error>: tauri::ipc::private::ResultKind`
+            `Result<(), anyhow::Error>: IpcResponse`
+            which is required by `&Result<(), anyhow::Error>: tauri::ipc::private::ResponseKind`
+    = note: this error originates in the macro `terminal::__cmd__resize_terminal` which comes from the expansion of the macro `tauri::generate_handler` (in Nightly builds, run with -Z macro-backtrace for more info)
+error[E0599]: the method `blocking_kind` exists for reference `&Result<(), anyhow::Error>`, but its trait bounds were not satisfied
+   --> src\terminal.rs:202:1
+    |
+202 |   #[tauri::command]
+    |   ^^^^^^^^^^^^^^^^^ method cannot be called on `&Result<(), anyhow::Error>` due to unsatisfied trait bounds
+    |
+   ::: C:\Users\runneradmin\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\anyhow-1.0.102\src\lib.rs:390:1
+    |
+390 |   pub struct Error {
+    |   ---------------- doesn't satisfy `anyhow::Error: Into<InvokeError>`
+    |
+   ::: src\lib.rs:18:25
+    |
+ 18 |           .invoke_handler(tauri::generate_handler![
+    |  _________________________-
+ 19 | |             terminal::create_terminal,
+ 20 | |             terminal::write_to_terminal,
+ 21 | |             terminal::resize_terminal,
+...   |
+ 30 | |             filesystem::get_home_dir,
+ 31 | |         ])
+    | |_________- in this macro invocation
+    |
+    = note: the following trait bounds were not satisfied:
+            `anyhow::Error: Into<InvokeError>`
+            which is required by `Result<(), anyhow::Error>: tauri::ipc::private::ResultKind`
+            `Result<(), anyhow::Error>: IpcResponse`
+            which is required by `&Result<(), anyhow::Error>: tauri::ipc::private::ResponseKind`
+    = note: this error originates in the macro `terminal::__cmd__kill_terminal` which comes from the expansion of the macro `tauri::generate_handler` (in Nightly builds, run with -Z macro-backtrace for more info)
+error[E0599]: the method `blocking_kind` exists for reference `&Result<Vec<FileEntry>, anyhow::Error>`, but its trait bounds were not satisfied
+   --> src\filesystem.rs:21:1
+    |
+ 21 |   #[tauri::command]
+    |   ^^^^^^^^^^^^^^^^^ method cannot be called on `&Result<Vec<FileEntry>, anyhow::Error>` due to unsatisfied trait bounds
+    |
+   ::: C:\Users\runneradmin\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\anyhow-1.0.102\src\lib.rs:390:1
+    |
+390 |   pub struct Error {
+    |   ---------------- doesn't satisfy `anyhow::Error: Into<InvokeError>`
+    |
+   ::: src\lib.rs:18:25
+    |
+ 18 |           .invoke_handler(tauri::generate_handler![
+    |  _________________________-
+ 19 | |             terminal::create_terminal,
+ 20 | |             terminal::write_to_terminal,
+ 21 | |             terminal::resize_terminal,
+...   |
+ 30 | |             filesystem::get_home_dir,
+ 31 | |         ])
+    | |_________- in this macro invocation
+    |
+    = note: the following trait bounds were not satisfied:
+            `anyhow::Error: Into<InvokeError>`
+            which is required by `Result<Vec<FileEntry>, anyhow::Error>: tauri::ipc::private::ResultKind`
+            `Result<Vec<FileEntry>, anyhow::Error>: IpcResponse`
+            which is required by `&Result<Vec<FileEntry>, anyhow::Error>: tauri::ipc::private::ResponseKind`
+    = note: this error originates in the macro `filesystem::__cmd__read_directory` which comes from the expansion of the macro `tauri::generate_handler` (in Nightly builds, run with -Z macro-backtrace for more info)
+error[E0599]: the method `blocking_kind` exists for reference `&Result<std::string::String, anyhow::Error>`, but its trait bounds were not satisfied
+   --> src\filesystem.rs:87:1
+    |
+ 87 |   #[tauri::command]
+    |   ^^^^^^^^^^^^^^^^^ method cannot be called on `&Result<std::string::String, anyhow::Error>` due to unsatisfied trait bounds
+    |
+   ::: C:\Users\runneradmin\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\anyhow-1.0.102\src\lib.rs:390:1
+    |
+390 |   pub struct Error {
+    |   ---------------- doesn't satisfy `anyhow::Error: Into<InvokeError>`
+    |
+   ::: src\lib.rs:18:25
+    |
+ 18 |           .invoke_handler(tauri::generate_handler![
+    |  _________________________-
+ 19 | |             terminal::create_terminal,
+ 20 | |             terminal::write_to_terminal,
+ 21 | |             terminal::resize_terminal,
+...   |
+ 30 | |             filesystem::get_home_dir,
+ 31 | |         ])
+    | |_________- in this macro invocation
+    |
+    = note: the following trait bounds were not satisfied:
+            `anyhow::Error: Into<InvokeError>`
+            which is required by `Result<std::string::String, anyhow::Error>: tauri::ipc::private::ResultKind`
+            `Result<std::string::String, anyhow::Error>: IpcResponse`
+            which is required by `&Result<std::string::String, anyhow::Error>: tauri::ipc::private::ResponseKind`
+    = note: this error originates in the macro `filesystem::__cmd__read_file_content` which comes from the expansion of the macro `tauri::generate_handler` (in Nightly builds, run with -Z macro-backtrace for more info)
+error[E0599]: the method `blocking_kind` exists for reference `&Result<(), anyhow::Error>`, but its trait bounds were not satisfied
+   --> src\filesystem.rs:98:1
+    |
+ 98 |   #[tauri::command]
+    |   ^^^^^^^^^^^^^^^^^ method cannot be called on `&Result<(), anyhow::Error>` due to unsatisfied trait bounds
+    |
+   ::: C:\Users\runneradmin\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\anyhow-1.0.102\src\lib.rs:390:1
+    |
+390 |   pub struct Error {
+    |   ---------------- doesn't satisfy `anyhow::Error: Into<InvokeError>`
+    |
+   ::: src\lib.rs:18:25
+    |
+ 18 |           .invoke_handler(tauri::generate_handler![
+    |  _________________________-
+ 19 | |             terminal::create_terminal,
+ 20 | |             terminal::write_to_terminal,
+ 21 | |             terminal::resize_terminal,
+...   |
+ 30 | |             filesystem::get_home_dir,
+ 31 | |         ])
+    | |_________- in this macro invocation
+    |
+    = note: the following trait bounds were not satisfied:
+            `anyhow::Error: Into<InvokeError>`
+            which is required by `Result<(), anyhow::Error>: tauri::ipc::private::ResultKind`
+            `Result<(), anyhow::Error>: IpcResponse`
+            which is required by `&Result<(), anyhow::Error>: tauri::ipc::private::ResponseKind`
+    = note: this error originates in the macro `filesystem::__cmd__write_file_content` which comes from the expansion of the macro `tauri::generate_handler` (in Nightly builds, run with -Z macro-backtrace for more info)
+error[E0599]: the method `blocking_kind` exists for reference `&Result<(), anyhow::Error>`, but its trait bounds were not satisfied
+   --> src\filesystem.rs:110:1
+    |
+110 |   #[tauri::command]
+    |   ^^^^^^^^^^^^^^^^^ method cannot be called on `&Result<(), anyhow::Error>` due to unsatisfied trait bounds
+    |
+   ::: C:\Users\runneradmin\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\anyhow-1.0.102\src\lib.rs:390:1
+    |
+390 |   pub struct Error {
+    |   ---------------- doesn't satisfy `anyhow::Error: Into<InvokeError>`
+    |
+   ::: src\lib.rs:18:25
+    |
+ 18 |           .invoke_handler(tauri::generate_handler![
+    |  _________________________-
+ 19 | |             terminal::create_terminal,
+ 20 | |             terminal::write_to_terminal,
+ 21 | |             terminal::resize_terminal,
+...   |
+ 30 | |             filesystem::get_home_dir,
+ 31 | |         ])
+    | |_________- in this macro invocation
+    |
+    = note: the following trait bounds were not satisfied:
+            `anyhow::Error: Into<InvokeError>`
+            which is required by `Result<(), anyhow::Error>: tauri::ipc::private::ResultKind`
+            `Result<(), anyhow::Error>: IpcResponse`
+            which is required by `&Result<(), anyhow::Error>: tauri::ipc::private::ResponseKind`
+    = note: this error originates in the macro `filesystem::__cmd__create_file` which comes from the expansion of the macro `tauri::generate_handler` (in Nightly builds, run with -Z macro-backtrace for more info)
+error[E0599]: the method `blocking_kind` exists for reference `&Result<(), anyhow::Error>`, but its trait bounds were not satisfied
+   --> src\filesystem.rs:124:1
+    |
+124 |   #[tauri::command]
+    |   ^^^^^^^^^^^^^^^^^ method cannot be called on `&Result<(), anyhow::Error>` due to unsatisfied trait bounds
+    |
+   ::: C:\Users\runneradmin\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\anyhow-1.0.102\src\lib.rs:390:1
+    |
+390 |   pub struct Error {
+    |   ---------------- doesn't satisfy `anyhow::Error: Into<InvokeError>`
+    |
+   ::: src\lib.rs:18:25
+    |
+ 18 |           .invoke_handler(tauri::generate_handler![
+    |  _________________________-
+ 19 | |             terminal::create_terminal,
+ 20 | |             terminal::write_to_terminal,
+ 21 | |             terminal::resize_terminal,
+...   |
+ 30 | |             filesystem::get_home_dir,
+ 31 | |         ])
+    | |_________- in this macro invocation
+    |
+    = note: the following trait bounds were not satisfied:
+            `anyhow::Error: Into<InvokeError>`
+            which is required by `Result<(), anyhow::Error>: tauri::ipc::private::ResultKind`
+            `Result<(), anyhow::Error>: IpcResponse`
+            which is required by `&Result<(), anyhow::Error>: tauri::ipc::private::ResponseKind`
+    = note: this error originates in the macro `filesystem::__cmd__create_directory` which comes from the expansion of the macro `tauri::generate_handler` (in Nightly builds, run with -Z macro-backtrace for more info)
+error[E0599]: the method `blocking_kind` exists for reference `&Result<(), anyhow::Error>`, but its trait bounds were not satisfied
+   --> src\filesystem.rs:135:1
+    |
+135 |   #[tauri::command]
+    |   ^^^^^^^^^^^^^^^^^ method cannot be called on `&Result<(), anyhow::Error>` due to unsatisfied trait bounds
+    |
+   ::: C:\Users\runneradmin\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\anyhow-1.0.102\src\lib.rs:390:1
+    |
+390 |   pub struct Error {
+    |   ---------------- doesn't satisfy `anyhow::Error: Into<InvokeError>`
+    |
+   ::: src\lib.rs:18:25
+    |
+ 18 |           .invoke_handler(tauri::generate_handler![
+    |  _________________________-
+ 19 | |             terminal::create_terminal,
+ 20 | |             terminal::write_to_terminal,
+ 21 | |             terminal::resize_terminal,
+...   |
+ 30 | |             filesystem::get_home_dir,
+ 31 | |         ])
+    | |_________- in this macro invocation
+    |
+    = note: the following trait bounds were not satisfied:
+            `anyhow::Error: Into<InvokeError>`
+            which is required by `Result<(), anyhow::Error>: tauri::ipc::private::ResultKind`
+            `Result<(), anyhow::Error>: IpcResponse`
+            which is required by `&Result<(), anyhow::Error>: tauri::ipc::private::ResponseKind`
+    = note: this error originates in the macro `filesystem::__cmd__delete_entry` which comes from the expansion of the macro `tauri::generate_handler` (in Nightly builds, run with -Z macro-backtrace for more info)
+error[E0599]: the method `blocking_kind` exists for reference `&Result<(), anyhow::Error>`, but its trait bounds were not satisfied
+   --> src\filesystem.rs:150:1
+    |
+150 |   #[tauri::command]
+    |   ^^^^^^^^^^^^^^^^^ method cannot be called on `&Result<(), anyhow::Error>` due to unsatisfied trait bounds
+    |
+   ::: C:\Users\runneradmin\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\anyhow-1.0.102\src\lib.rs:390:1
+    |
+390 |   pub struct Error {
+    |   ---------------- doesn't satisfy `anyhow::Error: Into<InvokeError>`
+    |
+   ::: src\lib.rs:18:25
+    |
+ 18 |           .invoke_handler(tauri::generate_handler![
+    |  _________________________-
+ 19 | |             terminal::create_terminal,
+ 20 | |             terminal::write_to_terminal,
+ 21 | |             terminal::resize_terminal,
+...   |
+ 30 | |             filesystem::get_home_dir,
+ 31 | |         ])
+    | |_________- in this macro invocation
+    |
+    = note: the following trait bounds were not satisfied:
+            `anyhow::Error: Into<InvokeError>`
+            which is required by `Result<(), anyhow::Error>: tauri::ipc::private::ResultKind`
+            `Result<(), anyhow::Error>: IpcResponse`
+            which is required by `&Result<(), anyhow::Error>: tauri::ipc::private::ResponseKind`
+    = note: this error originates in the macro `filesystem::__cmd__rename_entry` which comes from the expansion of the macro `tauri::generate_handler` (in Nightly builds, run with -Z macro-backtrace for more info)
+error[E0599]: the method `blocking_kind` exists for reference `&Result<std::string::String, anyhow::Error>`, but its trait bounds were not satisfied
+   --> src\filesystem.rs:162:1
+    |
+162 |   #[tauri::command]
+    |   ^^^^^^^^^^^^^^^^^ method cannot be called on `&Result<std::string::String, anyhow::Error>` due to unsatisfied trait bounds
+    |
+   ::: C:\Users\runneradmin\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\anyhow-1.0.102\src\lib.rs:390:1
+    |
+390 |   pub struct Error {
+    |   ---------------- doesn't satisfy `anyhow::Error: Into<InvokeError>`
+    |
+   ::: src\lib.rs:18:25
+    |
+ 18 |           .invoke_handler(tauri::generate_handler![
+    |  _________________________-
+ 19 | |             terminal::create_terminal,
+ 20 | |             terminal::write_to_terminal,
+ 21 | |             terminal::resize_terminal,
+...   |
+ 30 | |             filesystem::get_home_dir,
+ 31 | |         ])
+    | |_________- in this macro invocation
+    |
+    = note: the following trait bounds were not satisfied:
+            `anyhow::Error: Into<InvokeError>`
+            which is required by `Result<std::string::String, anyhow::Error>: tauri::ipc::private::ResultKind`
+            `Result<std::string::String, anyhow::Error>: IpcResponse`
+            which is required by `&Result<std::string::String, anyhow::Error>: tauri::ipc::private::ResponseKind`
+    = note: this error originates in the macro `filesystem::__cmd__get_home_dir` which comes from the expansion of the macro `tauri::generate_handler` (in Nightly builds, run with -Z macro-backtrace for more info)
+For more information about this error, try `rustc --explain E0599`.
+warning: `nexterm` (lib) generated 2 warnings
+error: could not compile `nexterm` (lib) due to 13 previous errors; 2 warnings emitted
+failed to build app: failed to build app
+       Error failed to build app: failed to build app
+Error: Command "npm ["run","tauri","build"]" failed with exit code 1

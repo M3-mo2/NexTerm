@@ -1,8 +1,7 @@
-use anyhow::{Context, Result};
 use portable_pty::{native_pty_system, CommandBuilder, MasterPty, PtySize};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::io::{BufRead, BufReader, Write};
+use std::io::{BufReader, Read, Write};
 use std::sync::Mutex;
 use tauri::{AppHandle, Emitter, State};
 
@@ -64,7 +63,7 @@ pub fn create_terminal(
     app: AppHandle,
     manager: State<'_, TerminalManager>,
     config: TerminalConfig,
-) -> Result<String> {
+) -> Result<String, String> {
     let id_str = uuid::Uuid::new_v4().to_string();
 
     let pty_system = native_pty_system();
@@ -76,11 +75,11 @@ pub fn create_terminal(
             pixel_width: 0,
             pixel_height: 0,
         })
-        .context("Failed to create PTY pair")?;
+        .map_err(|e| format!("Failed to create PTY pair: {}", e))?;
 
     // Determine shell to use
     let shell_cmd = config.shell.unwrap_or_else(|| {
-        // Default to PowerShell on Windows, fallback to cmd
+        // Default to PowerShell on Windows, fallback to bash
         if cfg!(target_os = "windows") {
             "powershell.exe".to_string()
         } else {
@@ -93,10 +92,19 @@ pub fn create_terminal(
         cmd.cwd(dir);
     }
 
-    let _child = pty_pair.slave.spawn_command(cmd)?;
+    let _child = pty_pair
+        .slave
+        .spawn_command(cmd)
+        .map_err(|e| format!("Failed to spawn command: {}", e))?;
 
-    let reader = pty_pair.master.try_reader()?;
-    let writer = pty_pair.master.take_writer()?;
+    let reader = pty_pair
+        .master
+        .try_clone_reader()
+        .map_err(|e| format!("Failed to get PTY reader: {}", e))?;
+    let writer = pty_pair
+        .master
+        .take_writer()
+        .map_err(|e| format!("Failed to get PTY writer: {}", e))?;
 
     let instance = TerminalInstance {
         master: pty_pair.master,
@@ -162,14 +170,20 @@ pub fn write_to_terminal(
     manager: State<'_, TerminalManager>,
     id: String,
     data: String,
-) -> Result<()> {
+) -> Result<(), String> {
     let mut instances = manager.instances.lock().unwrap();
     if let Some(instance) = instances.get_mut(&id) {
-        instance.writer.write_all(data.as_bytes())?;
-        instance.writer.flush()?;
+        instance
+            .writer
+            .write_all(data.as_bytes())
+            .map_err(|e| format!("Write error: {}", e))?;
+        instance
+            .writer
+            .flush()
+            .map_err(|e| format!("Flush error: {}", e))?;
         Ok(())
     } else {
-        anyhow::bail!("Terminal instance not found: {}", id)
+        Err(format!("Terminal instance not found: {}", id))
     }
 }
 
@@ -180,7 +194,7 @@ pub fn resize_terminal(
     id: String,
     cols: u16,
     rows: u16,
-) -> Result<()> {
+) -> Result<(), String> {
     let instances = manager.instances.lock().unwrap();
     if let Some(instance) = instances.get(&id) {
         instance
@@ -191,10 +205,10 @@ pub fn resize_terminal(
                 pixel_width: 0,
                 pixel_height: 0,
             })
-            .context("Failed to resize PTY")?;
+            .map_err(|e| format!("Failed to resize PTY: {}", e))?;
         Ok(())
     } else {
-        anyhow::bail!("Terminal instance not found: {}", id)
+        Err(format!("Terminal instance not found: {}", id))
     }
 }
 
@@ -203,7 +217,7 @@ pub fn resize_terminal(
 pub fn kill_terminal(
     manager: State<'_, TerminalManager>,
     id: String,
-) -> Result<()> {
+) -> Result<(), String> {
     let mut instances = manager.instances.lock().unwrap();
     instances.remove(&id);
     Ok(())
